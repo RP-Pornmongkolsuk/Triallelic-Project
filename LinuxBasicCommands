@@ -1,0 +1,50 @@
+### Here are some basic shell scripts/commands for everyday jobs. 
+## log into ssh
+# 'ssh username@ssh.ccv.brown.edu' - to log into ssh then type in your password
+
+## interactive jobs - for running serial programs/debugging codes
+# 'interact [-t walltime] [-m memory]' 
+# by default, 1 core, 4GB, 30 minutes 
+# i.e. 'interact -n 20 -t 01:00:00 -m 10g' 
+
+## Navigating OSCAR
+# 'pwd' - to print out the current directory and its absolute path
+# 'll'  or 'ls -1' - lists all the files that are located in the working directories
+#       with additional data arranged by time they were opened. 
+# 'cd yourDestination' - takes you to the destination directory 
+
+## Handling Files
+# 'mkdir directoryName' - makes a new directory (directory shows up in BLUE)
+# 'vi fileName' - opens the file in the text editor Vi or 'vim fileName'
+# 'mv /source/directory/fileName /target/destination/' - to move the file from source to target
+#       alternatively 'mv /source/directory/fileName .' - to move the file to the current directory
+# 'less fileName' - to inspect the file - press 'q' to exit 
+
+## File Transference 
+# from Oscar to local
+# 'scp /path/to/source/file <username>@transfer.ccv.brown.edu:/path/to/destination/' 
+# from local to Oscar
+# 'scp <username>@transfer.ccv.brown.edu:/path/to/source/file /path/to/destination/'
+
+## Execute Scripts 
+# 'chmod +x myScript' - make the file executable 
+# 'python fileName.py' - to run a python script
+# 'sbatch fileName.sh' - to submit job as the shell script 
+# squeue -u Username' 
+
+
+## Basic Commands in Vi/Vim
+# 'i' - insert before curor
+# press Esc. to leave insert mode
+# ':w name" - write edit buffer to file name
+# ':wq' - write to file and quit
+# ':q!' - quit without saving changes 
+# ':sh' - execute shell commands 
+# '/string' - search forward 
+# 'G' - go to last line
+# 'nG' or ':n' - go to line n
+
+
+
+## Random Tips
+# to close the split plane from accidental 'cmd D' is 'shift cmd D'
