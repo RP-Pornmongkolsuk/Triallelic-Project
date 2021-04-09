@@ -1,0 +1,19 @@
+#!/bin/bash
+for CHR in {1..22}; do
+sbatch -J ${CHR}1kFilter -N 1 -n 4 -t 1-0 --mem=2G -o ${CHR}1kFilter-%A.out -e ${CHR}1kFilter-%A.err --mail-type=ALL --mail-user=YOURemail@brown.edu --wrap="module load bcftools/1.10.2 gsl/2.5 gcc/8.3 perl/5.24.1; bcftools view -v snps -Oz -o 1kGenomeSNPSchr${CHR}.vcf.gz /users/dpeede/data/data/modern_genomes/1000genomes/ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
+done
+
+#!/bin/bash
+for CHR in {1..22}; do
+sbatch -J ${CHR}AltFilter -N 1 -n 4 -t 1-0 --mem=2G -o ${CHR}AltFilter-%A.out -e ${CHR}AltFilter-%A.err --mail-type=ALL --mail-user=ratchanon_pornmongkolsuk@brown.edu --wrap="module load bcftools/1.10.2 gsl/2.5 gcc/8.3 perl/5.24.1; bcftools view -i 'DP>=10 && DP<=150 && GQ>=40' -Oz -o AltFilteredGQ40DPchr${CHR}.vcf.gz /users/rpornmon/data/data/archaic_genomes/altai_VCF/ftp.eva.mpg.de/neandertal/Vindija/VCF/Altai/chr${CHR}_mq25_mapab100.vcf.gz"
+done
+
+#!/bin/bash
+for CHR in {1..22}; do
+sbatch -J ${CHR}VinFilter -N 1 -n 4 -t 1-0 --mem=2G -o ${CHR}VinFilter-%A.out -e ${CHR}VinFilter-%A.err --mail-type=ALL --mail-user=ratchanon_pornmongkolsuk@brown.edu --wrap="module load bcftools/1.10.2 gsl/2.5 gcc/8.3 perl/5.24.1; bcftools view -i 'DP>=10 && DP<=150 && GQ>=40' -Oz -o VinFilteredGQ40DPchr${CHR}.vcf.gz /users/rpornmon/data/data/archaic_genomes/vindija_VCF/ftp.eva.mpg.de/neandertal/Vindija/VCF/Vindija33.19/chr${CHR}_mq25_mapab100.vcf.gz"
+done
+
+#!/bin/bash
+for CHR in {1..22}; do
+sbatch -J ${CHR}DenFilter -N 1 -n 4 -t 1-0 --mem=2G -o ${CHR}DenFilter-%A.out -e ${CHR}DenFilter-%A.err --mail-type=ALL --mail-user=ratchanon_pornmongkolsuk@brown.edu --wrap="module load bcftools/1.10.2 gsl/2.5 gcc/8.3 perl/5.24.1; bcftools view -i 'DP>=10 && DP<=150 && GQ>=40' -Oz -o DenFilteredGQ40DPchr${CHR}.vcf.gz /users/rpornmon/data/data/archaic_genomes/denisova_VCF/ftp.eva.mpg.de/neandertal/Vindija/VCF/Denisova/chr${CHR}_mq25_mapab100.vcf.gz"
+done
