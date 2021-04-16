@@ -1,0 +1,7 @@
+cp ./1000genomes/{1kGenomeSNPSchr{1..22}.vcf.gz,AltFilteredGQ40DPchr{1..22}.vcf.gz,DenFilteredGQ40DPchr{1..22}.vcf.gz,VinFilteredGQ40DPchr{1..22}.vcf.gz} ./final
+
+#!/bin/bash
+for CHR in {1..22}; do
+vim ${CHR}TriallelicSNPs.py
+done
+scp {1..22}TriallelicSNPs.py rpornmon@ssh.ccv.brown.edu:/users/rpornmon/scratch/triallele/final
