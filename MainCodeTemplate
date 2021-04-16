@@ -1,0 +1,398 @@
+import gzip
+import numpy as np
+import pandas as pd
+
+CHR = 22 # CHROMOSOME: Change only one parameter, the rest of the code is the same
+
+## Create a list of all vcf filenames
+onek = "1kGenomeSNPSchr" + str(CHR) + ".vcf.gz" #1000 Genome Project Data
+den =  "DenFilteredGQ40DPchr" + str(CHR) + ".vcf.gz" #Denisovan
+vin =  "VinFilteredGQ40DPchr" + str(CHR) + ".vcf.gz" #Vindija Neanderthal
+alt_file =  "AltFilteredGQ40DPchr" + str(CHR) + ".vcf.gz" #Altai Neanderthal
+
+## 2D numpy arrays -- array[r,c] 
+o_list = np.array(['POS','REF','ALT1','ALT2','INFO']) # 2D list of data from 1kGP [pos,ref,alt,info]
+## lists for each archaic genomes
+d_list = np.array(['POS','H1','H2']) # 2D list of data from Den [pos,ref,alt]
+v_list = np.array(['POS','H1','H2']) # 2D list of data from Vin [pos,ref,alt]
+a_list = np.array(['POS','H1','H2'])# 2D list of data from Alt [pos,ref,alt]
+
+## array for the final result
+final = np.array(['POS','REF','ALT1','ALT2','DEN1','DEN2','VIN1','VIN2','ALT1','ALT2','EAS_AF1','EAS_AF2',
+                  'AMR_AF1','AMR_AF2','AFR_AF1','AFR_AF2','EUR_AF1','EUR_AF2','SAS_AF1','SAS_AF2'])
+
+indices = []
+ind_set = set()
+
+with gzip.open(onek, "rt") as data:
+    for line in data:
+        # Skip all the info line
+        if line.startswith("##") or line.startswith("#"):
+            continue
+
+        # Split the line by column
+        split_line = line.split()
+        # Break down the archaic genotypes into strings
+        pos = int(split_line[1]) # Position
+        ref = split_line[3] # Reference
+        alt = list(split_line[4]) # Alternative with string split into each letter i.e. ['A',',','T']
+        info = split_line[7] # Information including allele frequency for each population
+
+        
+        #######
+        #######
+        ##info_split = info.split(";") # Separate the string of info to obtain allele frequencies
+        ## For the split INFO line, the indices for each super population are 
+        # 5 = EAS_AF, 6 = AMR_AF, 7 = AFR_AF, 8 = EUR_AF, 9 = SAS_AF
+        #'EAS1','EAS2','AMR1','AMR2','AFR1','AFR2','EUR1','EUR2','SAS1','SAS2'
+        #######
+        #######
+        
+
+        if len(alt) == 3 : # look for triallelic sites ['N1' , ',' , 'N2']
+            combined = [pos,ref,alt[0],alt[2],info]
+            o_list = np.vstack([o_list,combined])
+            #print("1k combined = " + str(combined))
+#print('list = ' + str(o_list))
+
+
+####################
+####################            
+## DENISOVAN
+####################
+####################
+
+
+with gzip.open(den, "rt") as data:
+    index = 1
+    counter = 0
+    for line in data:
+        # Skip all the info line
+        if line.startswith("##") or line.startswith("#"):
+            continue
+
+        # Split the line by column
+        split_line = line.split()
+
+        pos = int(split_line[1])
+        ref = split_line[3]
+        alt = split_line[4]
+        allele = list(split_line[-1])[0:3]
+        h1 = None
+        h2 = None
+
+        ## figure out homozygous or heterozygous
+        ## In case it is triallelic
+        if allele[0] == '2' or allele[2] == '2':
+            if allele[0] == '0':
+                h1 = ref
+            elif allele[0] == '1':
+                h1 = list(alt)[0]
+            elif allele[0] == '2':
+                h1 = list(alt)[2]
+
+            if allele[2] == '0':
+                h2 = ref
+            elif allele[2] == '1':
+                h2 = list(alt)[0]
+            elif allele[2] == '2':
+                h2 = list(alt)[2]
+
+        else: # Ordinary biallelic site     
+            if allele[0] == '0':
+                h1 = ref
+            elif allele[0] == '1':
+                h1 = alt
+    
+            if allele[2] == '0':
+                h2 = ref
+            elif allele[2] == '1':
+                h2 = alt
+
+        for i in range(index,len(o_list)-1):
+            one = o_list[i,0].astype(int)
+            #print("index = " + str(index))
+            #print("1k = " + str(o_list[i,0]))
+            #print("den = " + str(pos))
+            if one < pos:
+                index += 1
+                continue
+            elif pos == one:
+                indices.append(index)
+                ind_set.add(index)
+                index += 1
+                counter += 1
+                #print("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM!")
+                combined = [pos,h1,h2]
+                d_list = np.vstack([d_list,combined])
+                #print("Den combined = " + str(combined))
+                break
+            elif one > pos:
+                break
+    print("DENISOVAN BAAM! COUNTER = " + str(counter))
+
+
+####################
+####################            
+## VINDIJA NEANDERTHAL
+####################
+####################
+
+with gzip.open(vin, "rt") as data:
+    index = 1
+    counter = 0
+    for line in data:
+        # Skip all the info line
+        if line.startswith("##") or line.startswith("#"):
+            continue
+
+        # Split the line by column
+        split_line = line.split()
+
+        pos = int(split_line[1])
+        ref = split_line[3]
+        alt = split_line[4]
+        allele = list(split_line[-1])[0:3]
+        h1 = None
+        h2 = None
+
+        ## figure out homozygous or heterozygous
+        ## In case it is triallelic
+        if allele[0] == '2' or allele[2] == '2':
+            if allele[0] == '0':
+                h1 = ref
+            elif allele[0] == '1':
+                h1 = list(alt)[0]
+            elif allele[0] == '2':
+                h1 = list(alt)[2]
+
+            if allele[2] == '0':
+                h2 = ref
+            elif allele[2] == '1':
+                h2 = list(alt)[0]
+            elif allele[2] == '2':
+                h2 = list(alt)[2]
+
+        else: # Ordinary biallelic site     
+            if allele[0] == '0':
+                h1 = ref
+            elif allele[0] == '1':
+                h1 = alt
+    
+            if allele[2] == '0':
+                h2 = ref
+            elif allele[2] == '1':
+                h2 = alt
+
+        for i in range(index,len(o_list)-1):
+            one = o_list[i,0].astype(int)
+            #print("index = " + str(index))
+            #print("1k = " + str(o_list[i,0]))
+            #print("vin = " + str(pos))
+            if one < pos:
+                index += 1
+                continue
+            elif pos == one:
+                if index in ind_set:
+                    pass
+                else:
+                    indices.append(index)
+                    ind_set.add(index)
+                index += 1
+                counter += 1
+                #print("BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM!")
+                combined = [pos,h1,h2]
+                v_list = np.vstack([v_list,combined])
+                #print("Vin combined = " + str(combined))
+                break
+            elif one > pos:
+                break
+    print("VINDIJA BAAM! COUNTER = " + str(counter))
+
+
+####################
+####################            
+## ALTAI NEANDERTHAL
+####################
+####################
+
+with gzip.open(alt_file, "rt") as data:
+    index = 1
+    counter = 0
+    for line in data:
+        # Skip all the info line
+        if line.startswith("##") or line.startswith("#"):
+            continue
+
+        # Split the line by column
+        split_line = line.split()
+
+        pos = int(split_line[1])
+        ref = split_line[3]
+        alt = split_line[4]
+        allele = list(split_line[-1])[0:3]
+        h1 = None
+        h2 = None
+
+        ## figure out homozygous or heterozygous
+        ## In case it is triallelic
+        if allele[0] == '2' or allele[2] == '2':
+            if allele[0] == '0':
+                h1 = ref
+            elif allele[0] == '1':
+                h1 = list(alt)[0]
+            elif allele[0] == '2':
+                h1 = list(alt)[2]
+
+            if allele[2] == '0':
+                h2 = ref
+            elif allele[2] == '1':
+                h2 = list(alt)[0]
+            elif allele[2] == '2':
+                h2 = list(alt)[2]
+
+        else: # Ordinary biallelic site     
+            if allele[0] == '0':
+                h1 = ref
+            elif allele[0] == '1':
+                h1 = alt
+    
+            if allele[2] == '0':
+                h2 = ref
+            elif allele[2] == '1':
+                h2 = alt
+
+        for i in range(index,len(o_list)-1):
+            one = o_list[i,0].astype(int)
+            #print("index = " + str(index))
+            #print("1k = " + str(o_list[i,0]))
+            #print("alt = " + str(pos))
+            if one < pos:
+                index += 1
+                continue
+            elif pos == one:
+                if index in ind_set:
+                    pass
+                else:
+                    indices.append(index)
+                    ind_set.add(index)
+                index += 1
+                counter += 1
+                combined = [pos,h1,h2]
+                a_list = np.vstack([a_list,combined])
+                break
+            elif one > pos:
+                break
+    print("ALTAI BAAM! COUNTER = " + str(counter))
+
+indices.sort()
+#print("indices = " + str(indices))
+
+d_i = 1
+v_i = 1
+a_i = 1
+
+for i in indices:
+
+    pos = o_list[i,0].astype(int)
+    d1 = None
+    d2 = None
+    v1 = None
+    v2 = None
+    a1 = None
+    a2 = None
+    
+    # DEN
+    for j in range(d_i,len(d_list)-1):
+        d_j = d_list[j,0].astype(int)
+        if d_j < pos:
+            d_i +=1
+            continue
+        elif d_j == pos:
+            d1 = d_list[j,1]
+            d2 = d_list[j,2]
+            d_i += 1
+            break
+        elif d_j > pos:
+            break
+
+
+    # VIN
+    for j in range(v_i,len(v_list)-1):
+        v_j = v_list[j,0].astype(int)
+        if v_j < pos:
+            v_i +=1
+            continue
+        elif v_j == pos:
+            v1 = v_list[j,1]
+            v2 = v_list[j,2]
+            v_i += 1
+            break
+        elif v_j > pos:
+            break
+
+    # ALT
+    for j in range(a_i,len(a_list)-1):
+        a_j = a_list[j,0].astype(int)
+        if a_j < pos:
+            a_i +=1
+            continue
+        elif a_j == pos:
+            a1 = a_list[j,1]
+            a2 = a_list[j,2]
+            a_i += 1
+            break
+        elif a_j > pos:
+            break
+
+
+    # Get Allele Frequencies for each superpop
+    info = o_list[i,4].split(";")
+    eas = info[5].split("=")[1]
+    amr = info[6].split("=")[1]
+    afr = info[7].split("=")[1]
+    eur = info[8].split("=")[1]
+    sas = info[9].split("=")[1]
+
+    eas1 = eas.split(",")[0]
+    eas2 = eas.split(",")[1]
+
+    amr1 = amr.split(",")[0]
+    amr2 = amr.split(",")[1]
+
+    afr1 = afr.split(",")[0]
+    afr2 = afr.split(",")[1]
+
+    eur1 = eur.split(",")[0]
+    eur2 = eur.split(",")[1]
+    
+    sas1 = sas.split(",")[0]
+    sas2 = sas.split(",")[1]
+    
+    combined = [pos,o_list[i,1],o_list[i,2],o_list[i,3],d1,d2,v1,v2,a1,a2,eas1,eas2,amr1,amr2,afr1,afr2,eur1,eur2,sas1,sas2]
+    final = np.vstack([final,combined])
+
+
+print(final)
+
+#output = pd.DataFrame(final)
+#filepath = 'CHR' + str(CHR) + 'TriallelicSNPs.xlsx'
+#output.to_excel(filepath, index=False)
+
+    
+
+#######
+        #######
+        ##info_split = info.split(";") # Separate the string of info to obtain allele frequencies
+        ## For the split INFO line, the indices for each super population are 
+        # 5 = EAS_AF, 6 = AMR_AF, 7 = AFR_AF, 8 = EUR_AF, 9 = SAS_AF
+        #'EAS1','EAS2','AMR1','AMR2','AFR1','AFR2','EUR1','EUR2','SAS1','SAS2'
+        #######
+        #######
+
+
+
+
+
+    
+
