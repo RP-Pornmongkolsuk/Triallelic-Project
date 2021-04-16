@@ -20,11 +20,26 @@
 #       alternatively 'mv /source/directory/fileName .' - to move the file to the current directory
 # 'less fileName' - to inspect the file - press 'q' to exit 
 
-## File Transference 
+## File Transference (Remote - Local)
 # from Oscar to local
 # 'scp /path/to/source/file <username>@transfer.ccv.brown.edu:/path/to/destination/' 
 # from local to Oscar
 # 'scp <username>@transfer.ccv.brown.edu:/path/to/source/file /path/to/destination/'
+# transfer multiple files 
+# 'scp source/file1 file2 file3 <username>@transfer.ccv.brown.edu:/destination'
+# transfer a directory (recursive)
+# scp -r /source/directory/ <username>@transfer.ccv.brown.edu:/destination'
+# Alternative for copying multiple files 
+# Try look up 'rsync' (never tried)
+
+## Copy files 
+# copy a file
+# 'cp /path/to/source/file /path/to/destination'
+# copy multiple files - for more applications, look up 'brace expansion'
+# 'cp /path/to/source/{file1,file2} /path/to/destination'
+# copy a directory
+# 'cp -R /source/directory /path/to/destination'
+# 
 
 ## Execute Scripts 
 # 'chmod +x myScript' - make the file executable 
@@ -43,8 +58,6 @@
 # '/string' - search forward 
 # 'G' - go to last line
 # 'nG' or ':n' - go to line n
-
-
 
 ## Random Tips
 # to close the split plane from accidental 'cmd D' is 'shift cmd D'
